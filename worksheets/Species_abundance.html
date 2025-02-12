@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Species abundance with Minimap2 and Emu</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Species_abundance_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Species_abundance_files/libs/quarto-html/quarto.js"></script>
+<script src="Species_abundance_files/libs/quarto-html/popper.min.js"></script>
+<script src="Species_abundance_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Species_abundance_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Species_abundance_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Species_abundance_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Species_abundance_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Species_abundance_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Species_abundance_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Species abundance with Minimap2 and Emu</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="generating-species-level-abundances-with-minimap2-and-emu" class="level1">
+<h1>Generating species level abundances with minimap2 and emu</h1>
+<p>To generate species level abundances we’re going to use two programs:</p>
+<ul>
+<li>minimap2 to align your sequences to our database of bacterial 16S sequences</li>
+<li>emu to take the results from minimap2 and generate a tsv file (which can be opened in excel) with abundances</li>
+</ul>
+<p>First upload the species_taxid.fasta file to galaxy, and then proceed with Step 1.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Screenshot_upload_species_taxid.png" class="img-fluid figure-img"></p>
+<figcaption>Upload 16S database file</figcaption>
+</figure>
+</div>
+<section id="step-1-align-with-minimap2" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-align-with-minimap2">Step 1: Align with minimap2</h2>
+<p>We can align with minimap2 on galaxy.</p>
+<p>Find minimap2 in tools and change the following options:</p>
+<p><strong>Will you select a reference genome from your history or use a built-in index?</strong></p>
+<ul>
+<li>Use a genome from history and build index</li>
+<li>Use the following dataset as the reference: species_taxid.fasta</li>
+</ul>
+<p><strong>Single or paired end reads</strong></p>
+<ul>
+<li>Select fastq dataset: Collection: fastp on collection Read 1 output</li>
+<li>Select a profile of preset options: Oxford nanopore read to reference… (map-ont)</li>
+</ul>
+<p><strong>Mapping options</strong></p>
+<ul>
+<li>Retain at most INT secondary alignments: 50</li>
+<li>Mapping options: min secondary to primary score ratio: 0.9</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_minimap2.gif" class="img-fluid figure-img"></p>
+<figcaption>Minimap instructions</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-2-open-jupyter-tools-and-create-bash-and-python-notebooks" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-open-jupyter-tools-and-create-bash-and-python-notebooks">Step 2: Open Jupyter tools and create bash and python notebooks</h2>
+<p>From tools, select “Interactive JupyterLab Notebook”</p>
+<p>Run tool</p>
+<p>This will add three things to your galaxy. “Executed Jupytool Notebook” and “Interactive Jupytool Notebook” will both go <span style="color:orange">orange</span> when they are running. When they are <span style="color:orange">orange</span>, click the “eye” to open JupytoolLab.</p>
+<p><em>In the below screenrecording I already have a JupyterLab Notebook set up</em></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_jupyterlab2.gif" class="img-fluid figure-img"></p>
+<figcaption>Launch JupyterLab Notebooks</figcaption>
+</figure>
+</div>
+<p>From launcher, under notebook, select “Bash” to open a notebook.</p>
+</section>
+<section id="step-3-set-up-environment-in-bash" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-set-up-environment-in-bash">Step 3: Set up environment in bash</h2>
+<p>From launcher, under notebook, select “Bash” to open a notebook.</p>
+<p>To set up and install everything we need, copy and paste the below code into a bash shell, then click the play button to run it.</p>
+<p>You can click the left hand panel to minimise the results.</p>
+<p>The job is running while there is an asterix [*] in the box on the left, which will disappear when the job is complete and be replaced by a number [1].</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up Emu database </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mkdir Emu_database</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>cd Emu_database</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pip install osfclient</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>osf <span class="sc">-</span>p <span class="dv">56</span>uf7 fetch osfstorage<span class="sc">/</span>emu<span class="sc">-</span>prebuilt<span class="sc">/</span>emu.tar</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>tar <span class="sc">-</span>xvf emu.tar</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>cd ..</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Install conda packages </span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>conda install <span class="sc">-</span>y bioconda<span class="sc">::</span>samtools</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>conda install <span class="sc">-</span>y emu</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_bashsetup.gif" class="img-fluid figure-img"></p>
+<figcaption>Set up bash notebook</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-4-grab-your-files-and-convert-from-bam-to-sam-files" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-grab-your-files-and-convert-from-bam-to-sam-files">Step 4: Grab your files and convert from bam to sam files</h2>
+<p>First you need the galaxy number from your history. Click “include hidden” and above “Map with minimap2 on collection” you’ll have the result from each file.</p>
+<p>Make sure you know which file is which. It will be named something like “Map with minimap2 on data 14 and data 39” where data 14 is the result from fastp. It might be helpful to tag each one to keep track of which is which.</p>
+<p>Once you have the number and the filename, change the top two lines of the below code and leave the rest the same.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set file information </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>FILE_NUMBER<span class="ot">=</span><span class="dv">43</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>FILE_NAME<span class="ot">=</span><span class="st">"LW_S1_R1"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Collect file, rename and convert BAM to SAM</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>get <span class="sc">-</span>i <span class="sc">$</span>FILE_NUMBER</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>mv <span class="sc">/</span>import<span class="sc">/</span><span class="er">$</span>FILE_NUMBER <span class="sc">$</span>FILE_NAME.bam</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>samtools view <span class="sc">-</span>h <span class="sc">-</span>o <span class="sc">$</span>FILE_NAME.sam <span class="sc">$</span>FILE_NAME.bam </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_getbams.gif" class="img-fluid figure-img"></p>
+<figcaption>Copy file from Galaxy History and convert to SAM file</figcaption>
+</figure>
+</div>
+<p>In the cell below, you can then copy this again and change the file number and name to your next file (repeat for as many files as you have)</p>
+</section>
+<section id="step-5-open-python-notebook" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-open-python-notebook">Step 5: Open Python notebook</h2>
+<p>From Launcher, open a python notebook.</p>
+<p>Upload the file “emu.py” using the upload button on the left hand panel.</p>
+<p>To set up the environment you need, copy and run the following code in the <strong>python</strong> notebook.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>from emu import <span class="sc">*</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>import datetime</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up database</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df_taxonomy <span class="ot">=</span> <span class="fu">pd.read_csv</span>(<span class="st">"Emu_database/taxonomy.tsv"</span>, <span class="at">sep=</span><span class="st">'</span><span class="sc">\t</span><span class="st">'</span>,<span class="at">index_col=</span><span class="st">'tax_id'</span>, <span class="at">dtype=</span>str)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>db_species_tids <span class="ot">=</span> df_taxonomy.index</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_openpython.gif" class="img-fluid figure-img"></p>
+<figcaption>Upload Emu.py and open python notebook</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-6-run-emu-on-the-sam-file-for-each-read" class="level2">
+<h2 class="anchored" data-anchor-id="step-6-run-emu-on-the-sam-file-for-each-read">Step 6: Run emu on the SAM file for each read</h2>
+<p>Copy the below code into the python notebook and change the out_file variable to match your file name. You won’t need to change anything else.</p>
+<p>It will give you a time when it starts and a time when it ends, so you can see when it is finished. Avoid closing down the notebook while it is running.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CHANGE THIS LINE</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>out_files <span class="ot">=</span> [<span class="st">"LW_S1_R1"</span>,<span class="st">"LW_S2_R1"</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># KEEP THIS THE SAME </span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> out_file <span class="cf">in</span> out_files<span class="sc">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  SAM_FILE <span class="ot">=</span> <span class="st">"{}.sam"</span><span class="fu">.format</span>(out_file)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Started emu calculations for {} at {}"</span><span class="fu">.format</span>(out_file, <span class="fu">datetime.datetime.now</span>()))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  log_prob_cigar_op, locs_p_cigar_zero, longest_align_dict <span class="ot">=</span> <span class="fu">get_cigar_op_log_probabilities</span>(SAM_FILE)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  log_prob_rgs, set_unmapped, set_mapped <span class="ot">=</span> <span class="fu">log_prob_rgs_dict</span>(SAM_FILE, log_prob_cigar_op, longest_align_dict, locs_p_cigar_zero)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  f_full, f_set_thresh, read_dist <span class="ot">=</span> <span class="fu">expectation_maximization_iterations</span>(log_prob_rgs,db_species_tids,.<span class="dv">01</span>, <span class="fl">0.0001</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  classified_reads <span class="ot">=</span> {read_id <span class="cf">for</span> inner_dict <span class="cf">in</span> <span class="fu">read_dist.values</span>() <span class="cf">for</span> read_id <span class="cf">in</span> inner_dict}</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  mapped_unclassified <span class="ot">=</span> set_mapped <span class="sc">-</span> classified_reads</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stdout.write</span>(f<span class="st">"Unclassified mapped read count: {len(mapped_unclassified)}</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">freq_to_lineage_df</span>(f_full, <span class="st">"{}_rel-abundance"</span><span class="fu">.format</span>(out_file), df_taxonomy,<span class="fu">len</span>(set_mapped), <span class="fu">len</span>(set_unmapped), <span class="fu">len</span>(mapped_unclassified),True)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">output_read_assignments</span>(read_dist, <span class="st">"{}_read-assignment-distributions"</span><span class="fu">.format</span>(out_file))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Finished emu calculations for {} at {}"</span><span class="fu">.format</span>(out_file, <span class="fu">datetime.datetime.now</span>()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_runemu.gif" class="img-fluid figure-img"></p>
+<figcaption>Run Emu on results from Minimap2</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-7-combine-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="step-7-combine-outputs">Step 7: Combine outputs</h2>
+<p>We now have abundance files, and we can combine these with the following code.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">combine_outputs</span>(<span class="st">"./"</span>, <span class="st">"species"</span>, True, False)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">combine_outputs</span>(<span class="st">"./"</span>, <span class="st">"species"</span>, True, False)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_combineoutputs.gif" class="img-fluid figure-img"></p>
+<figcaption>Combine outputs from your various sequences</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-8-export-results-back-to-galaxy" class="level2">
+<h2 class="anchored" data-anchor-id="step-8-export-results-back-to-galaxy">Step 8: Export results back to galaxy</h2>
+<p>Now we can export the results to galaxy.</p>
+<p>Go back to the <strong>bash</strong> notebook (or open a new one)</p>
+<p>Type in and run the below code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># send files back to galaxy </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>put <span class="sc">-</span>p <span class="sc">*</span>.tsv</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>put <span class="sc">-</span>p <span class="sc">*</span>.ipynb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You should now have your tsv files (containing your abundances) in galaxy. You can download these and open them in excel, R or Jamovi.</p>
+<p>You also have the notebook files (.ipynb) as a record of what you did. You can open these again by selecting an Interactive JupyterLab notebook and selecting “Load a previous notebook”</p>
+<p>You can now close JupyterLab by going to Interactive Tools -&gt; select the JupyTool -&gt; Stop. It will also automatically time out after 12 hours.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Lice_exportresults.gif" class="img-fluid figure-img"></p>
+<figcaption>Export the results</figcaption>
+</figure>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

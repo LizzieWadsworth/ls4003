@@ -218,7 +218,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <figcaption>Copy file from Galaxy History and convert to SAM file</figcaption>
 </figure>
 </div>
-<p>In the cell below, you can then copy this again and change the file number and name to your next file (repeat for as many files as you have)</p>
+<p>In the cell below, you can then copy this again and change the file number and name to your next file</p>
+<p><strong>Repeat this step for as many files as you have. Make sure you change both FILE_NUMBER and FILE_NAME each time</strong></p>
 </section>
 <section id="step-5-open-python-notebook" class="level2">
 <h2 class="anchored" data-anchor-id="step-5-open-python-notebook">Step 5: Open Python notebook</h2>
@@ -241,7 +242,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="step-6-run-emu-on-the-sam-file-for-each-read" class="level2">
 <h2 class="anchored" data-anchor-id="step-6-run-emu-on-the-sam-file-for-each-read">Step 6: Run emu on the SAM file for each read</h2>
-<p>Copy the below code into the python notebook and change the out_file variable to match your file name. You won’t need to change anything else.</p>
+<p>Copy the below code into the python notebook and change the out_files variable to match your file name. You won’t need to change anything else.</p>
+<p>If you have more than two files, you can add them here in this format for as many files as you have:</p>
+<p><code>out_files = ["Filename_1", "Filename_2", "Filename_3"]</code></p>
 <p>It will give you a time when it starts and a time when it ends, so you can see when it is finished. Avoid closing down the notebook while it is running.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CHANGE THIS LINE</span></span>
@@ -727,7 +730,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom"});
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

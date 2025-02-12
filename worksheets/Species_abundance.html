@@ -200,7 +200,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-4-grab-your-files-and-convert-from-bam-to-sam-files" class="level2">
 <h2 class="anchored" data-anchor-id="step-4-grab-your-files-and-convert-from-bam-to-sam-files">Step 4: Grab your files and convert from bam to sam files</h2>
 <p>First you need the galaxy number from your history. Click “include hidden” and above “Map with minimap2 on collection” you’ll have the result from each file.</p>
-<p>Make sure you know which file is which. It will be named something like “Map with minimap2 on data 14 and data 39” where data 14 is the result from fastp. It might be helpful to tag each one to keep track of which is which.</p>
+<p>Make sure you know which file is which sample. It will be named something like “Map with minimap2 on data 14 and data 39” where data 14 is the result from fastp. It might be helpful add a tag to each one to keep track of which is which.</p>
 <p>Once you have the number and the filename, change the top two lines of the below code and leave the rest the same.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set file information </span></span>
@@ -727,7 +727,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

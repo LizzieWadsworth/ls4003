@@ -67,14 +67,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="Heatmaps_for_species_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="Heatmaps_for_species_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Heatmaps_for_species_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="Heatmaps_for_species_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="Heatmaps_for_species_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="Heatmaps_for_species_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#making-heatmaps-from-species-analysis" id="toc-making-heatmaps-from-species-analysis" class="nav-link active" data-scroll-target="#making-heatmaps-from-species-analysis">Making heatmaps from species analysis</a>
+  <ul class="collapse">
+  <li><a href="#dowloading-the-table-from-galaxy-and-renaming" id="toc-dowloading-the-table-from-galaxy-and-renaming" class="nav-link" data-scroll-target="#dowloading-the-table-from-galaxy-and-renaming">Dowloading the table from galaxy and renaming</a></li>
+  <li><a href="#using-positcloud-for-r-projects" id="toc-using-positcloud-for-r-projects" class="nav-link" data-scroll-target="#using-positcloud-for-r-projects">Using PositCloud for R projects</a></li>
+  <li><a href="#reading-the-file-and-replacing-nas-with-0" id="toc-reading-the-file-and-replacing-nas-with-0" class="nav-link" data-scroll-target="#reading-the-file-and-replacing-nas-with-0">Reading the file and replacing NAs with 0</a></li>
+  <li><a href="#select-top-n-species-or-a-selection-of-species" id="toc-select-top-n-species-or-a-selection-of-species" class="nav-link" data-scroll-target="#select-top-n-species-or-a-selection-of-species">Select top n species, or a selection of species</a>
+  <ul class="collapse">
+  <li><a href="#choose-top-values-based-on-abundance-value-for-a-particular-column" id="toc-choose-top-values-based-on-abundance-value-for-a-particular-column" class="nav-link" data-scroll-target="#choose-top-values-based-on-abundance-value-for-a-particular-column">1. Choose top values based on abundance value for a particular column</a></li>
+  <li><a href="#choose-rows-based-on-species-name" id="toc-choose-rows-based-on-species-name" class="nav-link" data-scroll-target="#choose-rows-based-on-species-name">2. Choose rows based on species name</a></li>
+  </ul></li>
+  <li><a href="#simple-heatmap" id="toc-simple-heatmap" class="nav-link" data-scroll-target="#simple-heatmap">Simple heatmap</a></li>
+  <li><a href="#ggplot2-heatmap" id="toc-ggplot2-heatmap" class="nav-link" data-scroll-target="#ggplot2-heatmap">ggplot2 heatmap</a></li>
+  <li><a href="#ggplot2-colour-schemes" id="toc-ggplot2-colour-schemes" class="nav-link" data-scroll-target="#ggplot2-colour-schemes">ggplot2 colour schemes</a>
+  <ul class="collapse">
+  <li><a href="#colour-based-on-named-colours-or-html-codes" id="toc-colour-based-on-named-colours-or-html-codes" class="nav-link" data-scroll-target="#colour-based-on-named-colours-or-html-codes">1. Colour based on named colours or html codes</a></li>
+  <li><a href="#colour-based-on-palette" id="toc-colour-based-on-palette" class="nav-link" data-scroll-target="#colour-based-on-palette">2. Colour based on palette</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -98,30 +126,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="making-heatmaps-from-species-analysis" class="level1">
 <h1>Making heatmaps from species analysis</h1>
-<p>A few of you have asked how to go from the species analysis tables in galaxy to generating heatmaps. This can be done in R, so find below a short guide to setting these up. <em>This is entirely optional - it is perfectly okay to display the same information in an excel table</em></p>
+<p>A few of you have asked how to go from the species analysis tables in galaxy to generating heatmaps. This can be done in R, so find below a short guide to setting these up.</p>
+<p><em>This is entirely optional - it is perfectly okay to display the same information in an excel table</em></p>
 <section id="dowloading-the-table-from-galaxy-and-renaming" class="level2">
 <h2 class="anchored" data-anchor-id="dowloading-the-table-from-galaxy-and-renaming">Dowloading the table from galaxy and renaming</h2>
 <p>We can save the species abundance table from galaxy - this is a tsv file (tab separated file) but it is renamed as a tabular file. You can rename this to remove the .tabular and leave it as a .tsv file.</p>
+<p><em>I’m working on a Mac but it is the same for Windows</em></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="heatmap7_savegalaxy.gif" class="lightbox" data-gallery="my-gallery" title="Download Abundance File"><img src="heatmap7_savegalaxy.gif" class="img-fluid figure-img" alt="Download Abundance File"></a></p>
+<figcaption>Download Abundance File</figcaption>
+</figure>
+</div>
 </section>
 <section id="using-positcloud-for-r-projects" class="level2">
 <h2 class="anchored" data-anchor-id="using-positcloud-for-r-projects">Using PositCloud for R projects</h2>
-<p>Create a <strong>free</strong> account on PositCloud to access R and all packages. Like Galaxy, this is a cloud-based solution so the actual analyses is run on a remote server. Therefore this should work from any device.</p>
+<p>Create a <strong>free</strong> account on <a href="https://posit.cloud/">posit.cloud</a> to access R and all packages. Like Galaxy, this is a cloud-based solution so the actual analyses is run on a remote server. Therefore this should work from any device.</p>
 <p><em>You will not need a paid plan for this project</em></p>
-<p>Once you’ve created an account, log in and open up a new RStudio Project.</p>
-<p>You can then use the upload button to upload your abundance file, and create and save a new R file.</p>
+<p>Once you’ve created an account:</p>
+<ol type="1">
+<li>Log in and open up a new RStudio Project.</li>
+<li>Use the upload button to upload your abundance file</li>
+<li>Create and save a new R file (top left panel)</li>
+</ol>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="heatmap1_posit.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
+<p><a href="heatmap1_posit.gif" class="lightbox" data-gallery="my-gallery" title="Set up RStudio project"><img src="heatmap1_posit.gif" class="img-fluid figure-img" alt="Set up RStudio project"></a></p>
 <figcaption>Set up RStudio project</figcaption>
 </figure>
 </div>
 </section>
 <section id="reading-the-file-and-replacing-nas-with-0" class="level2">
 <h2 class="anchored" data-anchor-id="reading-the-file-and-replacing-nas-with-0">Reading the file and replacing NAs with 0</h2>
-<p>To get your table of data from your files into R:</p>
+<p>First, we need to read the data from the file and store it.</p>
+<p>We can create save our results as a variable (like a container) with code like: <code>variable_name &lt;- task()</code> which save the results of a task or function as variable_name.</p>
 <ol type="1">
-<li><p>Upload the data using the upload button</p></li>
-<li><p>Use the following R code, changing FILENAME to your filename. This will open your file and save it as a dataframe called my_species_abundance_data</p></li>
+<li>Use the following R code, changing FILENAME to your filename. This will open your file and save it as a variable called my_species_abundance_data</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>my_species_abundance_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"FILENAME.tsv"</span>, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>, <span class="at">row.names=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -134,7 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="heatmap2_readfile.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
+<p><a href="heatmap2_readfile.gif" class="lightbox" data-gallery="my-gallery" title="Open datasets"><img src="heatmap2_readfile.gif" class="img-fluid figure-img" alt="Open datasets"></a></p>
 <figcaption>Open datasets</figcaption>
 </figure>
 </div>
@@ -143,44 +183,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="select-top-n-species-or-a-selection-of-species">Select top n species, or a selection of species</h2>
 <p>Next, choose what data you want to plot on your heatmap. The full datasets are too large!</p>
 <p>There are different ways you can do this:</p>
-<ol type="1">
-<li>Choose top values based on abundance value for a particular column</li>
-</ol>
-<p>For this we can use the dplyr package, which has a function called top_n.&nbsp;</p>
-<p>You need to change the words in capital letters to match your requirements.</p>
+<section id="choose-top-values-based-on-abundance-value-for-a-particular-column" class="level3">
+<h3 class="anchored" data-anchor-id="choose-top-values-based-on-abundance-value-for-a-particular-column">1. Choose top values based on abundance value for a particular column</h3>
+<p>For this we can use the dplyr package, which has a function called top_n.&nbsp; You need to change the words in capital letters to match what you want to choose.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install and load the package</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">'dplyr'</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The below code is selecting for the top 10 values in column </span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>my_species_top_n_sample_1 <span class="ot">&lt;-</span> <span class="fu">top_n</span>(NAME_OF_DATAFRAME,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>my_species_top_n_sample_1 <span class="ot">&lt;-</span> <span class="fu">top_n</span>(NAME_OF_DATA,</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                                NUMBER_OF_TOP_VALUES_TO_PICK,</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                                COLUMN_NAME_FOR_SELECTION)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="heatmap3_top_n.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
+<p><a href="heatmap3_top_n.gif" class="lightbox" data-gallery="my-gallery" title="Select data from dataset based on top values"><img src="heatmap3_top_n.gif" class="img-fluid figure-img" alt="Select data from dataset based on top values"></a></p>
 <figcaption>Select data from dataset based on top values</figcaption>
 </figure>
 </div>
-<ol start="2" type="1">
-<li>Choose rows based on species name</li>
-</ol>
+</section>
+<section id="choose-rows-based-on-species-name" class="level3">
+<h3 class="anchored" data-anchor-id="choose-rows-based-on-species-name">2. Choose rows based on species name</h3>
 <p>You can create a vector containing all the species names you want to extract from your table, and use this to create a new dataframe based on these species. Spelling must match row names exactly. I’ve picked 5 at random below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Choose species. </span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>my_species <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Baekduia soli'</span>, <span class="st">'Brevibacillus panacihumi'</span>, <span class="st">'Campylobacter jejuni'</span>, <span class="st">'Caulobacter flavus'</span>, <span class="st">'Dehalogenimonas lykanthroporepellens'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Select species from row</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>my_species_chosen_selection <span class="ot">&lt;-</span> my_species_abundance_data[my_species,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>my_species_chosen_selection <span class="ot">&lt;-</span> my_species_abundance_data[my_species,] <span class="co"># the comma is important here, it selects all columns for the chosen rows. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="heatmap4_chosen.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
+<p><a href="heatmap4_chosen.gif" class="lightbox" data-gallery="my-gallery" title="Select data from dataset based on species names"><img src="heatmap4_chosen.gif" class="img-fluid figure-img" alt="Select data from dataset based on species names"></a></p>
 <figcaption>Select data from dataset based on species names</figcaption>
 </figure>
 </div>
+</section>
 </section>
 <section id="simple-heatmap" class="level2">
 <h2 class="anchored" data-anchor-id="simple-heatmap">Simple heatmap</h2>
@@ -194,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="heatmap4_simpleheatmap.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
+<p><a href="heatmap4_simpleheatmap.gif" class="lightbox" data-gallery="my-gallery" title="Simple heatmap and legend"><img src="heatmap4_simpleheatmap.gif" class="img-fluid figure-img" alt="Simple heatmap and legend"></a></p>
 <figcaption>Simple heatmap and legend</figcaption>
 </figure>
 </div>
@@ -223,7 +262,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="heatmap5_ggplot2.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
+<p><a href="heatmap5_ggplot2.gif" class="lightbox" data-gallery="my-gallery" title="Simple heatmap and legend"><img src="heatmap5_ggplot2.gif" class="img-fluid figure-img" alt="Simple heatmap and legend"></a></p>
 <figcaption>Simple heatmap and legend</figcaption>
 </figure>
 </div>
@@ -231,9 +270,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="ggplot2-colour-schemes" class="level2">
 <h2 class="anchored" data-anchor-id="ggplot2-colour-schemes">ggplot2 colour schemes</h2>
 <p>With ggplot2, you can add either of the following lines to change the colours of the graph</p>
-<ol type="1">
-<li>Colour based on named colours or html codes</li>
-</ol>
+<section id="colour-based-on-named-colours-or-html-codes" class="level3">
+<h3 class="anchored" data-anchor-id="colour-based-on-named-colours-or-html-codes">1. Colour based on named colours or html codes</h3>
 <p>The line <code>scale_fill_gradient(high = "red", low = "yellow")</code> allows you to choose the high and low colours for a gradient based on <a href="https://sape.inf.usi.ch/quick-reference/ggplot2/colour">ggplot named colours</a></p>
 <p>For example:</p>
 <div class="cell">
@@ -243,9 +281,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">high =</span> <span class="st">"lavenderblush1"</span>, <span class="at">low =</span> <span class="st">"darkorchid4"</span>) <span class="sc">+</span> </span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Title of graph"</span>, <span class="at">x =</span> <span class="st">"X axis label"</span>, <span class="at">y =</span> <span class="st">"Y axis label"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<ol start="2" type="1">
-<li>Colour based on palette</li>
-</ol>
+</section>
+<section id="colour-based-on-palette" class="level3">
+<h3 class="anchored" data-anchor-id="colour-based-on-palette">2. Colour based on palette</h3>
 <p>You can also use any of the RColorBrewer predefined colour pallettes:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(species_melted, <span class="fu">aes</span>(<span class="at">x =</span> COLUMN_SAMPLES, <span class="at">y=</span>COLUMN_SPECIES, <span class="at">fill =</span> value)) <span class="sc">+</span> </span>
@@ -254,13 +292,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_distiller</span>(<span class="at">palette =</span> <span class="st">"Spectral"</span>) <span class="sc">+</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Title of graph"</span>, <span class="at">x =</span> <span class="st">"X axis label"</span>, <span class="at">y =</span> <span class="st">"Y axis label"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>And that’s it! You’ve represented your data as a heat map.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="heatmap6_ggplot2colours.gif" class="img-fluid figure-img" data-group="my-gallery"></p>
-<figcaption>Simple heatmap and legend</figcaption>
-</figure>
-</div>
+<p><img src="heatmap6_ggplot2colours.gif" class="img-fluid" data-group="my-gallery" alt="Simple heatmap and legend"> And that’s it! You’ve represented your data as a heat map.</p>
+</section>
 </section>
 </section>
 
@@ -687,6 +720,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom","openEffect":"zoom"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
